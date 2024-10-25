@@ -1,5 +1,5 @@
 # Package for Analysis of Target Thicknesses and Yields by Method of Energy Loss and Transfer (PATTYMELT)
-### v. 0.4.3; Author: T. Hankins, Date Last Modified: 241017
+### v. 0.4.4; Author: T. Hankins, Date Last Modified: 241025
 
 ## Quick Access
 
@@ -150,9 +150,9 @@
     - `stretching_parameters` - determines the stretching parameters to scale the raw position data to physical limits. The parameters are written to a calib file.
     - `check_stretching_parameters` - checks stretching parameters. Not required, but recommended.
     - `energy_calibration` - determines the energy conversion between channels and MeV. The slope and intercept of the conversion are written to a calib file.
-        - This executable *may* require user interaction; see [README_interactables.md](./bin/README/README_interactables.md) in `bin/README` for more information.
+        - This executable *may* require user interaction; see [README_interactables.md](./README_interactables.md) in the root for more information.
     - `perform_thickness_measurement` - performs the actual calculation of a target's thickness. Energy spectra, hit maps, and thickness maps are written to an output file in the specified `OUTPUT_FILE_DIR` in `PathManager.h`.
-        - This executable requires user interaction; see [README_interactables.md](./bin/README/README_interactables.md) in `bin/README` for more information.
+        - This executable requires user interaction; see [README_interactables.md](./README_interactables.md) in the root for more information.
 
 ### `perform_thickness_measurement` File Output
 
@@ -178,7 +178,7 @@
 - "Nothing displays when running `perform_thickness_measurement`. Did something go wrong?
     - The success (or lack thereof) of running this script is entirely determined by terminal output. This executable was originally designed with a display feature, but an oversight in `TSpectrum` means that `TCanvas`es are generated on each spectrum search. This significantly slows down the procedure, even with manually taking control over the auto-generated canvases. To mitigate this, the display feature was omitted (but the source code is still present in the file). Instead, view the generated ROOT file when the executable is complete to determine the outcome.
 - "My output when running `energy_calibration`/`perform_thickness_measurement` is all kinds of wrong. What's going on?
-    - See corresponding section in [README_interactables.md](./bin/README/README_interactables.md) in `bin/README`.
+    - See corresponding section in [README_interactables.md](./README_interactables.md) in the root.
 
 
 
@@ -186,6 +186,7 @@
 
 ## Changelog
 
+- 0.4.4 (241025) : more minor reorganization for preliminary upload to GitHub.
 - 0.4.3 (241017) : corrected energy loss error in `perform_thickness_measurement`; added `CycSrimHandler.h` to be able to pass SRIM material as argument in executable so that it doesn't have to be recompiled each time the material is changed. Added a rudimentary generalization to `perform_thickness_measurement` so that sources that don't have radon leakage (i.e., <sup>229</sup>Th) can be analyzed with the same script without iterative correction passes. Cleaned up files in `src/` in preparation for upload to GitHub.
 - 0.4.2 (241003) : refactored `perform_thickness_measurement` output to include upper and lower error TH2F objects rather than a TGraphAsyErrors. Reorganized outputs for ease of access, organizing the spectra into the final thickness map and groups of the diagnostic and source energy spectra plots.
 - 0.4.1 (240912) : adjusted `perform_thickness_measurement` to account for position bin edge cases when calculating thicknesses. Due to radon emission in <sup>228</sup>Th, energy spectra beyond the active area of the target are still populated. An arbitrary threshold was added to bypass evaluation of bins where the number of entries is less than the threshold percent of the number in the most populated bin. Adjusted `perform_thickness_measurement` to recalculate thicknesses in bad bins with two peaks rather than one, then to recursively perform the recalculation based on available references around the bin being recalculated until all to be recalculated are.
