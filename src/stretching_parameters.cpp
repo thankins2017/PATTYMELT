@@ -2,8 +2,6 @@
 
 // C++ includes
 #include <fstream>
-#include <string>
-#include <sstream>
 
 // ROOT includes
 #include "TApplication.h"
@@ -35,10 +33,7 @@ int main(int argc, char **argv) {
 
     // Front vs. back calibration parameter read-in
     double front_vs_back_slope {}, front_vs_back_offset {};
-    std::fstream in_file_calib(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::string in_line {}; std::getline(in_file_calib, in_line);
-    std::istringstream buffer(in_line); buffer >> front_vs_back_slope >> front_vs_back_offset;
-    in_file_calib.close();
+    read_face_parameters(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), front_vs_back_slope, front_vs_back_offset);
     
     // Reduced file setup and tree read-in
     std::cout << std::endl;

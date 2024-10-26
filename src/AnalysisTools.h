@@ -1,6 +1,10 @@
 #ifndef ANALYSIS_TOOLS__H
 #define ANALYSIS_TOOLS__H
 
+#include <fstream>
+#include <string>
+#include <sstream>
+
 #include "PathManager.h"
 
 std::vector<double> source_energies {8.785, 6.778, 6.288, 5.685, 5.423, 5.340}; // Global 228Th values
@@ -218,6 +222,25 @@ void integrator_method(T063123Event *event, double &f1, double &f2, double &b1, 
 }
 
 */
+
+void read_face_parameters(const char *file, double &slope, double &offset) {
+    std::fstream in_file(file, std::ios_base::in);
+    std::string in_line {}; std::getline(in_file, in_line);
+    std::istringstream buffer(in_line); buffer >> slope >> offset;
+    in_file.close();
+}
+
+void read_energy_parameters(const char *file, double &slope, double &intercept) {
+    read_face_parameters(file, slope, intercept);
+}
+
+void read_stretching_parameters(const char *file, double &top, double &bottom, double &right, double &left) {
+    std::fstream in_file(file, std::ios_base::in);
+    std::string in_line {}; std::getline(in_file, in_line);
+    std::istringstream buffer(in_line);
+    buffer >> top >> bottom >> right >> left;
+    in_file.close();
+}
 
 bool front_equal_back(double front, double back, double slope, double offset) {
     // F = s * B + o; assume that the offset doesn't play a significant role for this

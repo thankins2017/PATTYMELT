@@ -4,8 +4,6 @@
 
 // C++ includes
 #include <fstream>
-#include <string>
-#include <sstream>
 
 // ROOT includes
 #include "TApplication.h"
@@ -35,20 +33,10 @@ int main(int argc, char **argv) {
 
 
 
-    // Front vs. back calibration parameter read-in
-    double front_vs_back_slope {}, front_vs_back_offset {};
-    std::fstream in_file_calib(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::string in_line {}; std::getline(in_file_calib, in_line);
-    std::istringstream buffer(in_line); buffer >> front_vs_back_slope >> front_vs_back_offset;
-    in_file_calib.close();
-
-    // Stretching parameter read-in
-    double right_limit {}, left_limit {}, top_limit {}, bottom_limit {};
-    in_file_calib.open(Form("%sstretching_parameters.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::getline(in_file_calib, in_line);
-    buffer.clear(); buffer.str(in_line);
-    buffer >> top_limit >> bottom_limit >> right_limit >> left_limit;
-    in_file_calib.close();
+    // Front vs. back calibration and stretching parameter read-in
+    double front_vs_back_slope {}, front_vs_back_offset {}, top_limit {}, bottom_limit {}, right_limit {}, left_limit{};
+    read_face_parameters(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), front_vs_back_slope, front_vs_back_offset);
+    read_stretching_parameters(Form("%sstretching_parameters.dat", CALIB_FILE_DIR), top_limit, bottom_limit, right_limit, left_limit);
     
     // Reduced file setup and tree read-in
     std::cout << std::endl;

@@ -63,44 +63,18 @@ int main(int argc, char **argv) {
         std::abort();
     }
 
-    // Front vs. back calibration parameter read-in
+    // Face calibration parameter read-in
     double front_vs_back_slope {}, front_vs_back_offset {};
-    std::fstream in_file_calib(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::string in_line {}; std::getline(in_file_calib, in_line);
-    std::istringstream buffer(in_line); buffer >> front_vs_back_slope >> front_vs_back_offset;
-    in_file_calib.close();
+    double front_vs_front_slope {}, front_vs_front_offset {}, back_vs_back_slope {}, back_vs_back_offset {};
+    read_face_parameters(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), front_vs_back_slope, front_vs_back_offset);
+    read_face_parameters(Form("%sfront_vs_front.dat", CALIB_FILE_DIR), front_vs_front_slope, front_vs_front_offset);
+    read_face_parameters(Form("%sback_vs_back.dat", CALIB_FILE_DIR), back_vs_back_slope, back_vs_back_offset);
 
-    // Front vs. front calibration parameter read-in
-    double front_vs_front_slope {}, front_vs_front_offset {};
-    in_file_calib.open(Form("%sfront_vs_front.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::getline(in_file_calib, in_line);
-    buffer.clear(); buffer.str(in_line);
-    buffer >> front_vs_front_slope >> front_vs_front_offset;
-    in_file_calib.close();
-
-    // Back vs. back calibration parameter read-in
-    double back_vs_back_slope {}, back_vs_back_offset {};
-    in_file_calib.open(Form("%sback_vs_back.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::getline(in_file_calib, in_line);
-    buffer.clear(); buffer.str(in_line);
-    buffer >> back_vs_back_slope >> back_vs_back_offset;
-    in_file_calib.close();
-
-    // Stretching parameter read-in
+    // Stretching parameter and energy calibration read-in
     double top_limit {}, bottom_limit {}, right_limit {}, left_limit{};
-    in_file_calib.open(Form("%sstretching_parameters.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::getline(in_file_calib, in_line);
-    buffer.clear(); buffer.str(in_line);
-    buffer >> top_limit >> bottom_limit >> right_limit >> left_limit;
-    in_file_calib.close();
-
-    // Energy calibration read-in
+    read_stretching_parameters(Form("%sstretching_parameters.dat", CALIB_FILE_DIR), top_limit, bottom_limit, right_limit, left_limit);
     double energy_slope {}, energy_intercept {};
-    in_file_calib.open(Form("%senergy_calibration.dat", CALIB_FILE_DIR), std::ios_base::in);
-    std::getline(in_file_calib, in_line);
-    buffer.clear(); buffer.str(in_line);
-    buffer >> energy_slope >> energy_intercept;
-    in_file_calib.close();
+    read_energy_parameters(Form("%senergy_calibration.dat", CALIB_FILE_DIR), energy_slope, energy_intercept);
     
     // Reduced file setup and tree read-in
     std::cout << std::endl;
