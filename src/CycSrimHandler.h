@@ -22,10 +22,25 @@ CycSrim::EMaterials evaluate_cycsrim_material(const std::string &material) {
         return CycSrim::SrimMaterialCu;
     } else if(material == "CycSrim::SrimMaterialAu") {
         return CycSrim::SrimMaterialAu;
+    } else if(material == "CycSrim::SrimMaterialBoron") {
+        return CycSrim::SrimMaterialBoron;
     } else {
         std::invalid_argument("CycSrimHandler::evaluate_cycsrim_material : invalid material " + material + ". Returning CycSrim::SrimMaterialAu");
         return CycSrim::SrimMaterialAu;
     }
 }
+
+/*
+std::string return_cycsrim_material(int material) {
+    if(material == 8) return "CycSrim::SrimMaterialCarbon";
+    if(material == 4) return "CycSrim::SrimMaterialAluminum";
+    if(material == 26) return "CycSrim::SrimMaterialCD2";
+    if(material == 34) return "CycSrim::SrimMaterialSn";
+    if(material == 50) return "CycSrim::SrimMaterialCu";
+    if(material == 9) return "CycSrim::SrimMaterialAu";
+    if(material == 51) return "CycSrim::SrimMaterialBoron";
+    return "CycSrimHandler::return_cycsrim_material() : unknown material";
+}
+*/
 
 #endif

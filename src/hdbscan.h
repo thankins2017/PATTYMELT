@@ -7,6 +7,7 @@
 // HDBSCAN Usage
 // - The clusterer is controlled by a set of parameters that can be adjusted after instantiation.
 //      - k: number of nearest neighbors in the standard metric search
+//          - Adjusting this can help with convergence on secondary peaks in a spectrum.
 //      - minimum_cluster_size: number of data points required for a cluster to form
 //      - alpha: weighting factor for choosing optimal clusters; larger alpha = preferentially more clusters
 //      - allow_single_cluster: whether or not a single cluster should be allowed

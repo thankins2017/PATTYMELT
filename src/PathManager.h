@@ -7,7 +7,7 @@
 
 // Relevant Values
 #define EXPT_DATE "063123"                  // Which experimental directory holds the data
-#define CALIB_RUN 49                        // What run contains data for blank DADL (stretching and E calib)
+#define CALIB_RUN 81                        // What run contains data for blank DADL (stretching and E calib)
 #define FILE_NAME_FORMAT "R%s%03d.root"     // What naming convention ReducedFiles follow 
 // #define MASK_RUN
 

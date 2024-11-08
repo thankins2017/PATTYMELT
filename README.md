@@ -1,5 +1,5 @@
 # Package for Analysis of Target Thicknesses and Yields by Method of Energy Loss and Transfer (PATTYMELT)
-### v. 0.4.4; Author: T. Hankins, Date Last Modified: 241025
+### v. 0.5.3; Author: T. Hankins, Date Last Modified: 241108
 
 ## Quick Access
 
@@ -186,8 +186,10 @@
 
 ## Changelog
 
-- 0.4.4 (241025) : more minor reorganization for preliminary upload to GitHub; generalized parameter file read in into set of methods in `AnalysisTools.h` which are now called in scripts rather than copy-pasted everywhere.
-- 0.4.3 (241017) : corrected energy loss error in `perform_thickness_measurement`; added `CycSrimHandler.h` to be able to pass SRIM material as argument in executable so that it doesn't have to be recompiled each time the material is changed. Added a rudimentary generalization to `perform_thickness_measurement` so that sources that don't have radon leakage (i.e., <sup>229</sup>Th) can be analyzed with the same script without iterative correction passes. Cleaned up files in `src/` in preparation for upload to GitHub.
+- 0.5.3 (241108) : added `std::fstream()` calibration file checks to `AnalysisTools.h` that ensure the files are present (i.e., to not let people who don't read the instructions do as they please); added simple fix to `perform_thickness_measurement` that corrects multi-peak fit where a single peak was missed.
+- 0.5.2 (241029) : added cosine thickness correction to `perform_thickness_measurement`, as well as a variable for the distance between the source and detector to `AnalysisTools.h`.
+- 0.5.1 (241025) : more minor reorganization for preliminary upload to GitHub; generalized parameter file read in into set of methods in `AnalysisTools.h` which are now called in scripts rather than copy-pasted everywhere.
+- 0.5.0 (241017) : corrected energy loss error in `perform_thickness_measurement`; added `CycSrimHandler.h` to be able to pass SRIM material as argument in executable so that it doesn't have to be recompiled each time the material is changed. Added a rudimentary generalization to `perform_thickness_measurement` so that sources that don't have radon leakage (i.e., <sup>229</sup>Th) can be analyzed with the same script without iterative correction passes. Cleaned up files in `src/` in preparation for upload to GitHub.
 - 0.4.2 (241003) : refactored `perform_thickness_measurement` output to include upper and lower error TH2F objects rather than a TGraphAsyErrors. Reorganized outputs for ease of access, organizing the spectra into the final thickness map and groups of the diagnostic and source energy spectra plots.
 - 0.4.1 (240912) : adjusted `perform_thickness_measurement` to account for position bin edge cases when calculating thicknesses. Due to radon emission in <sup>228</sup>Th, energy spectra beyond the active area of the target are still populated. An arbitrary threshold was added to bypass evaluation of bins where the number of entries is less than the threshold percent of the number in the most populated bin. Adjusted `perform_thickness_measurement` to recalculate thicknesses in bad bins with two peaks rather than one, then to recursively perform the recalculation based on available references around the bin being recalculated until all to be recalculated are.
 - 0.4.0 (240820) : created helper file `hdbscan.h` based on Bryan Harvey's version of HDBSCAN to handle clustering for `front_vs_front` and `back_vs_back` and edited the corresponding files to implement this. Further edited these files to perform principal component analysis by means of TPrincipal for extraction of calibration parameters rather than using linear fits.

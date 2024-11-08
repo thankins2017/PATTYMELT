@@ -21,10 +21,14 @@
 int main(int argc, char **argv) {
     //____________________________________________________________________________________________________
     // Configuration settings that generally do not change run to run.
-    auto is_damaged_target {true}; // Adjusts parameters to expect significant non-uniformity //! In development
-    auto verbosity {0}; // Adjust level of information printed as output.
-	// 0 - no extra information; 1 - minimal information; 2 - more information; 3 - debug
-    auto is_228Th {static_cast<bool>(source_energies.front() == 8.785)};
+    auto number_peaks_fit {5};          // How many peaks are to be used during the thickness calculation
+    auto peak_threshold {0.2};         // The amplitude, as a function of the most populated bin in the spectrum, at which
+                                            // a set of bins could be identified as a peak. 0.25 is often used for 228Th.
+    auto reevaluate_target {true};     // After performing first-pass calculations, loop through the target one or more
+                                            // times to recover poorly fit bins?
+    auto cosine_correction {false};     // Apply effective thickness correction?
+    auto verbosity {0};                 // Adjust level of information printed as output.
+	                                        // 0 - no extra information; 1 - minimal information; 2 - more information; 3 - debug
     //____________________________________________________________________________________________________
 
     // option manager
@@ -47,6 +51,8 @@ int main(int argc, char **argv) {
 
     // Target initialization; disregard the thickness given in the constructor, as it does not matter.
     auto *TARGET = new CycSrim(evaluate_cycsrim_material(opt_material->GetValue()), 1, CycSrim::kUnitsMgCm2);
+    std::cout << std::endl;
+    std::cout << "perform_thickness_measurement : target initialized using " << opt_material->GetValue() << std::endl;
 
     // Coarseness warning
     if(opt_coarseness->GetValue() < 0.5) {
@@ -77,7 +83,6 @@ int main(int argc, char **argv) {
     read_energy_parameters(Form("%senergy_calibration.dat", CALIB_FILE_DIR), energy_slope, energy_intercept);
     
     // Reduced file setup and tree read-in
-    std::cout << std::endl;
     std::cout << "perform_thickness_measurement : reduced file read-in" << std::endl;
     auto in_file = std::make_unique<TFile>(Form(Form("%s%s", REDUCED_FILE_DIR, FILE_NAME_FORMAT), EXPT_DATE, opt_run_number->GetValue()));
     gROOT->cd();
@@ -86,7 +91,7 @@ int main(int argc, char **argv) {
     tree->SetBranchAddress("event", &evin);
     auto num_entries {std::min(static_cast<int>(tree->GetEntries()), opt_events->GetValue())};
 
-    // CycSrim initialization, calculation of energy points in source spectrum
+    // CycSrim initialization, calculation of energy points in source spectrum, check number of peaks.
     std::cout << "perform_thickness_measurement : calculating adjusted source spectrum" << std::endl;
     auto *gold = new CycSrim(CycSrim::SrimMaterialAu, 0.026, CycSrim::kUnitsMicron);
     auto *mylar = new CycSrim(CycSrim::SrimMaterialMylar, 1.4, CycSrim::kUnitsMicron);
@@ -101,6 +106,8 @@ int main(int argc, char **argv) {
         std::cout << source_energies.at(i) << ", ";
     }
     std::cout << std::endl;
+
+    number_peaks_fit = std::min(number_peaks_fit, static_cast<int>(source_energies.size()));
 
     // Histograms/graphs needed for calibration
     auto out_file = std::make_unique<TFile>(Form("%sthickness_%s%03d.root", OUTPUT_FILE_DIR, EXPT_DATE, opt_run_number->GetValue()), "RECREATE");
@@ -166,6 +173,11 @@ int main(int argc, char **argv) {
     // even with sufficiently thick targets, meaning that misidentification can frequently occur. To mediate this, loop through
     // the energy histograms and remember what the maximum in any one is, then determine if analyses should take place based on
     // the ratio of the current energy histogram to the maximum. 40% is probably a reasonable cutoff.
+
+    // The peak finding algorithm can only do so much. It is up to the scientist to take enough data to make the fit procedure
+    // reasonable. Two-thousand events in the most populated bin is a reasonable number to aim for, but fitting on anything less
+    // than about 60% of this can be finicky.
+    float cutoff_scalar {0.6};
     int maximum_number_entries {};
     for(auto i : histograms) {
         if(i->GetEntries() > maximum_number_entries) maximum_number_entries = i->GetEntries();
@@ -179,15 +191,12 @@ int main(int argc, char **argv) {
     for(auto i = 0; i < histograms.size(); ++i) {
         if(i % 10 == 0) printf("Fit %d/%d\n", i, histograms.size());
 
-        if(histograms.at(i)->GetEntries() > 500 && histograms.at(i)->GetEntries() > 0.4 * maximum_number_entries) {
-            if(histograms.at(i)->GetEntries() < 2000) histograms.at(i)->Rebin(4);
+        if(histograms.at(i)->GetEntries() > 250 && histograms.at(i)->GetEntries() > cutoff_scalar * maximum_number_entries) {
+            if(histograms.at(i)->GetEntries() < 2000) histograms.at(i)->Rebin(2);
             // Set up the TSpectrum to identify peaks.
             if (verbosity > 2) std::cout << "----- POINT 1 -----" << std::endl;
             auto *spec = new TSpectrum(2 * source_energies.size());
-            auto threshold {0.25}; // determines which peaks to cut off for consideration.
-                                   // There is a chance that the fit won't converge on the lowest shoulder for
-                                   // 228Th, but the thickness will only be gauged with higher peaks, so no concern.
-            auto peak_list_length = spec->Search(histograms.at(i), 5, "nobackground goff", threshold);
+            auto peak_list_length = spec->Search(histograms.at(i), 5, "nobackground goff", peak_threshold);
             double *x_peaks = spec->GetPositionX();
             double par[2 * source_energies.size() + 1];
             par[0] = 5; // universal width of the peaks, in channels
@@ -249,8 +258,7 @@ int main(int argc, char **argv) {
             // between the observed spectra and the no-target values.
             std::vector<double> nominal_energy_losses {}, thicknesses {};
             std::vector<double> lower_energy_losses {}, upper_energy_losses {}, lower_errors {}, upper_errors {};
-            auto num_peaks_to_consider {is_228Th ? 3 : 5}; // If 228Th, use three peaks; if 229Th, use 5.
-            for(auto j = 0; j < std::min(static_cast<int>(peak_centroids.size()), num_peaks_to_consider); ++j) {
+            for(auto j = 0; j < std::min(static_cast<int>(peak_centroids.size()), number_peaks_fit); ++j) {
                 // We must account for the dead layer impact in our observation of the energy so that we may compare it to the
                 // source energies prior to the dead layer. This is what matters for the thickness calculation. We are also 
                 // considering thickness error by adjusting the energies with the fit uncertainties.
@@ -294,6 +302,16 @@ int main(int argc, char **argv) {
 				}
             }
 
+            // Here's a quick fix if a single peak was improperly fit. This will only work if only one peak was fit incorrectly; if more than
+            // one are misfit leading to a thickness considerably higher than nominal, then the bin should be recalculated with reevaluate_target.
+            for(auto t : thicknesses) {
+                if(t > 1.5 * avg_thickness) {
+                    avg_thickness = (static_cast<int>(thicknesses.size()) * avg_thickness - t) / (static_cast<int>(thicknesses.size()) - 1);
+                }
+            }
+
+            if(verbosity > 0) std::cout << "avg. thickness, potentially corrected for misfit peak: " << avg_thickness << std::endl;
+
             // Add the thickness value to the 2D representative histogram.
             auto x_bin {static_cast<int>(i % num_divisions) + 1}; // ROOT counts from 1
             auto y_bin {static_cast<int>(i / num_divisions) + 1}; // ROOT counts from 1
@@ -303,13 +321,12 @@ int main(int argc, char **argv) {
 	    	h_LowerError->SetBinContent(x_bin, y_bin, avg_thickness - avg_lower_error);
             
             if(verbosity > 2) std::cout << "----- POINT 7 -----" << std::endl;
-            // Reclaim memory?
         }
     }
 
     // In general, using a source that doesn't have leakage will not produce a thickness map that requires corrective
-    // action. In this case, if the source being used is not 228Th, the iterative correction part of the code is bypassed.
-    if(is_228Th) {
+    // action. If this is the case, skip this part of the code.
+    if(reevaluate_target) {
         // Loop through the thickness histogram and calculate what the average thickness is. This can be a very poor approximation
         // of the true average thickness, especially if the number of bad bins is large. Use this value to filter out the obviously 
         // incorrect bins with a forgiving cut, then re-loop through the histogram to calculate a better approximation of the 
@@ -449,6 +466,19 @@ int main(int argc, char **argv) {
     
     h_ThicknessMap = (TH2F *)thickness_maps.back()->Clone();
 
+    // Perform cosine thickness correction to the final thickness histogram, if desired
+    if(cosine_correction) {
+        for(int b_x = 1; b_x <= h_ThicknessMap->GetNbinsX(); ++b_x) {
+            for(int b_y = 1; b_y < h_ThicknessMap->GetNbinsY(); ++b_y) {
+                auto x {h_ThicknessMap->GetXaxis()->GetBinCenter(b_x)};
+                auto y {h_ThicknessMap->GetYaxis()->GetBinCenter(b_y)};
+                auto scale {std::cos(std::atan(std::sqrt(x*x + y*y) / source_detector_distance))};
+
+                h_ThicknessMap->SetBinContent(b_x, b_y, h_ThicknessMap->GetBinContent(b_x, b_y) / scale);
+            }
+        }
+    }
+
     // To make viewing of this histogram as efficient as possible
     auto minimum_cont {std::numeric_limits<float>::max()}, maximum_cont {0.0f};
     for(int x = 1; x <= h_ThicknessMap->GetNbinsX(); ++x) {
@@ -477,7 +507,10 @@ int main(int argc, char **argv) {
     for(auto i : thickness_maps) i->Write();
     root_dir->cd();
     source_spectra_dir->cd();
-    for(auto i : histograms) i->Write();
+    for(auto i : histograms) {
+        // Same condition as fitting loop
+        if(i->GetEntries() > 250 && i->GetEntries() > cutoff_scalar * maximum_number_entries) i->Write();
+    }
     root_dir->cd();
 
     out_file->Close();

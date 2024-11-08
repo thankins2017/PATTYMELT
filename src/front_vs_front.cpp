@@ -96,7 +96,8 @@ int main(int argc, char **argv) {
 
     std::cout << "front_vs_front : initializing HDBSCAN clusterer" << std::endl;
     auto *clusterer {new HDBSCAN(points)};
-    clusterer->set_minimum_cluster_size(1000);
+    clusterer->set_k(10);
+    clusterer->set_minimum_cluster_size(2000);
     clusterer->set_alpha(0.8);
     clusterer->fit();
 

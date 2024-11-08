@@ -96,7 +96,8 @@ int main(int argc, char **argv) {
 
     std::cout << "back_vs_back : initializing HDBSCAN clusterer" << std::endl;
     auto *clusterer {new HDBSCAN(points)};
-    clusterer->set_minimum_cluster_size(1000);
+    clusterer->set_k(10);
+    clusterer->set_minimum_cluster_size(2000);
     clusterer->set_alpha(0.8);
     clusterer->fit();
 
@@ -177,6 +178,11 @@ int main(int argc, char **argv) {
     g_final->Fit(f_final, "Q");
     std::cout << "Final fit: " << f_final->GetParameter(0) << " " << f_final->GetParameter(1) << std::endl;
 
+    auto *can2 = (TCanvas *)gROOT->FindObjectAny("can2");
+    if(!can2) can2 = new TCanvas("can2", "", 50, 50, 500, 500);
+    g_final->Draw("ap");
+    f_final->Draw("l same");
+    
     std::fstream out_file(Form("%s%s", CALIB_FILE_DIR, "back_vs_back.dat"), std::ios_base::out);
     out_file << f_final->GetParameter(0) << "\t" << f_final->GetParameter(1) << std::endl;
     out_file.close();
