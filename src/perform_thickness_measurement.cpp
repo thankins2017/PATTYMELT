@@ -22,9 +22,9 @@ int main(int argc, char **argv) {
     //____________________________________________________________________________________________________
     // Configuration settings that generally do not change run to run.
     auto number_peaks_fit {5};          // How many peaks are to be used during the thickness calculation
-    auto peak_threshold {0.2};         // The amplitude, as a function of the most populated bin in the spectrum, at which
+    auto peak_threshold {0.2};          // The amplitude, as a function of the most populated bin in the spectrum, at which
                                             // a set of bins could be identified as a peak. 0.25 is often used for 228Th.
-    auto reevaluate_target {true};     // After performing first-pass calculations, loop through the target one or more
+    auto reevaluate_target {true};      // After performing first-pass calculations, loop through the target one or more
                                             // times to recover poorly fit bins?
     auto cosine_correction {false};     // Apply effective thickness correction?
     auto verbosity {0};                 // Adjust level of information printed as output.
@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
     // The peak finding algorithm can only do so much. It is up to the scientist to take enough data to make the fit procedure
     // reasonable. Two-thousand events in the most populated bin is a reasonable number to aim for, but fitting on anything less
     // than about 60% of this can be finicky.
-    float cutoff_scalar {0.6};
+    float cutoff_scalar {0.5};
     int maximum_number_entries {};
     for(auto i : histograms) {
         if(i->GetEntries() > maximum_number_entries) maximum_number_entries = i->GetEntries();

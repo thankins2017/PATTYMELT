@@ -1,5 +1,5 @@
 # Package for Analysis of Target Thicknesses and Yields by Method of Energy Loss and Transfer (PATTYMELT)
-### v. 0.5.3; Author: T. Hankins, Date Last Modified: 241108
+### v. 1.0.0; Author: T. Hankins, Date Last Modified: 241210
 
 ## Quick Access
 
@@ -186,6 +186,7 @@
 
 ## Changelog
 
+- 1.0.0 (241210) : corrected small error with integrator method; paper is currently under internal review, so now is an appropriate time to promote to release version.
 - 0.5.3 (241108) : added `std::fstream()` calibration file checks to `AnalysisTools.h` that ensure the files are present (i.e., to not let people who don't read the instructions do as they please); added simple fix to `perform_thickness_measurement` that corrects multi-peak fit where a single peak was missed.
 - 0.5.2 (241029) : added cosine thickness correction to `perform_thickness_measurement`, as well as a variable for the distance between the source and detector to `AnalysisTools.h`.
 - 0.5.1 (241025) : more minor reorganization for preliminary upload to GitHub; generalized parameter file read in into set of methods in `AnalysisTools.h` which are now called in scripts rather than copy-pasted everywhere.

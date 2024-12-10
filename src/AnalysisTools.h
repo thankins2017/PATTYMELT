@@ -73,7 +73,7 @@ void integrator_method(T063123Event *event, double &f1, double &f2, double &b1, 
         IntegratorValueF2[0] = event->GetF2Baseline(1);
         IntegratorValueB1[0] = event->GetB1Baseline(1);
         IntegratorValueB2[0] = event->GetB2Baseline(1);
-        for(Int_t j = 1; j < 7; ++j) {
+        for(Int_t j = 1; j < 8; ++j) {
             IntegratorValueF1[j] = event->GetF1Integrator(1, j);
             IntegratorValueF2[j] = event->GetF2Integrator(1, j);
             IntegratorValueB1[j] = event->GetB1Integrator(1, j);
