@@ -10,7 +10,12 @@
 //___________________________________________________________________________________________________
 // Global properties of the testing station
 // std::vector<double> source_energies {8.785, 6.778, 6.288, 5.685, 5.423, 5.340}; // Global 228Th values
-std::vector<double> source_energies {8.38, 7.07, 6.34, 5.83, 4.85}; // Global 229Th values
+// std::vector<double> source_energies {8.38, 7.07, 6.34, 5.83, 4.85}; // Global 229Th values
+
+// Global 229Th values, calculated using sum of Gaussians defined by decay radiation information
+// and detector resolution of 60 keV; this only significantly impacts the 5.830 MeV peak with an
+// uncertainty of roughly 12 keV between 40 keV and 100 keV detector resolution.
+std::vector<double> source_energies {8.376, 7.067, 6.341, 5.822, 4.843};
 
 float source_detector_distance {12.7}; // Distance between source and det face, measured in cm.
 //___________________________________________________________________________________________________
