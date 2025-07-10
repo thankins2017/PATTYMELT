@@ -1,4 +1,5 @@
-// Determines the front vs. back slope and offset from a calibration run.
+// Determines the front vs. back slope and offset from a calibration run. Gain matching on the
+// faces is needed before running this procedure.
 
 // C++ includes
 #include <fstream>
@@ -40,6 +41,11 @@ int main(int argc, char **argv) {
     tree->SetBranchAddress("event", &evin);
     auto num_entries {std::min(static_cast<int>(tree->GetEntries()), opt_events->GetValue())};
 
+    // Face calibration parameter read-in
+    double front_vs_front_slope {}, front_vs_front_offset {}, back_vs_back_slope {}, back_vs_back_offset {};
+    read_face_parameters(Form("%sfront_vs_front.dat", CALIB_FILE_DIR), front_vs_front_slope, front_vs_front_offset);
+    read_face_parameters(Form("%sback_vs_back.dat", CALIB_FILE_DIR), back_vs_back_slope, back_vs_back_offset);
+
     // Histograms/graphs needed for calibration
     auto *g_FrontVsBack = new TGraph(); g_FrontVsBack->SetTitle("FvB;Back Sum (chan);Front Sum (chan)");
 
@@ -52,10 +58,13 @@ int main(int argc, char **argv) {
         double f1 {}, f2 {}, b1 {}, b2 {};
         integrator_method(evin, f1, f2, b1, b2);
 
-        double front_sum {f1 + f2}, back_sum {b1 + b2};
+        double front_sum {gain_match(f1, f2, front_vs_front_slope, front_vs_front_offset)};
+        double back_sum  {gain_match(b1, b2, back_vs_back_slope, back_vs_back_offset)};
+        // front_equal_back function not used since slope and intercept for this call is extracted
+        // from this procedure.
         if(front_sum > 0 && front_sum < 1E10 && back_sum > 0 && back_sum < 1E10) {
             if(front_sum < 1.05 * back_sum && front_sum > 0.95 * back_sum) {
-                g_FrontVsBack->SetPoint(g_FrontVsBack->GetN(), b1 + b2, f1 + f2);
+                g_FrontVsBack->SetPoint(g_FrontVsBack->GetN(), back_sum, front_sum);
             }
         }
     }

@@ -1,5 +1,5 @@
 # Package for Analysis of Target Thicknesses and Yields by Method of Energy Loss and Transfer (PATTYMELT)
-### v. 1.0.0; Author: T. Hankins, Date Last Modified: 241210
+### v. 1.1.0; Author: T. Hankins, Date Last Modified: 250612
 
 ## Quick Access
 
@@ -55,7 +55,15 @@
     ```
     ls ~/lib/lib063123.so
     ```
-    If you get a "No such file or directory" result, address this problem before continuing. The fastest way to address this:
+    If you get a "No such file or directory" result, address this problem before continuing. First, ensure that `CVSROOT` is properly initialized by including
+    ```
+    setenv CVSROOT /home/jbngroup/jbngroup/CVSROOT
+    ```
+    in `~/.cshrc`. Then,
+    ```
+    source ~/.cshrc
+    ```
+    Then,
     ```
     cd ~/
     cvs checkout 063123
@@ -140,12 +148,12 @@
     - `c` - exclusive to `perform_thickness_measurement`; determines coarseness of the position map (in mm).
     - `m` - exclusive to `perform_thickness_measurement`; determines CycSrim material to use for the thickness calculation.
 - The analysis order is as follows:
-    - `front_vs_back` - determines relationship between front and back energy sums. The slope and intercept of the relationship are written to a calib file.
     - `front_vs_front` - performs gain matching between the front signals. The slope and intercept of the relationship are written to a calib file.
         - This executable uses the clustering algorithm HDBSCAN to cluster points and extract calibration parameters. To achieve a reasonable fit, this requires a considerable number of events (~ 100k within the MST, this is printed to the terminal during execution. A reasonable number of total events is about 250k). As a result, the algorithm may take a few minutes to run. The implementation is at worst *O(N<sup>2</sup>)*, which can become tedious with a significant number of entries.
         - Properties of the HDBSCAN clusterer can be edited in the source code around line 100 if the fit is to be adjusted. See `hdbscan.h` for discussion of properties.
     - `back_vs_back` - performs gain matching between the back signals. The slope and intercept of the relationship are written to a calib file.
         - See description for `front_vs_front`.
+    - `front_vs_back` - determines relationship between front and back energy sums after gain matching the front and back faces. The slope and intercept of the front-back relationship are written to a calib file.
     - `check_gain_match` - checks gain matching parameters. Not required, but recommended.
     - `stretching_parameters` - determines the stretching parameters to scale the raw position data to physical limits. The parameters are written to a calib file.
     - `check_stretching_parameters` - checks stretching parameters. Not required, but recommended.
@@ -186,6 +194,7 @@
 
 ## Changelog
 
+- 1.1.0 (250612) : added functionality for target produced with backing in `perform_thickness_measurement`.
 - 1.0.0 (241210) : corrected small error with integrator method; paper is currently under internal review, so now is an appropriate time to promote to release version.
 - 0.5.3 (241108) : added `std::fstream()` calibration file checks to `AnalysisTools.h` that ensure the files are present (i.e., to not let people who don't read the instructions do as they please); added simple fix to `perform_thickness_measurement` that corrects multi-peak fit where a single peak was missed.
 - 0.5.2 (241029) : added cosine thickness correction to `perform_thickness_measurement`, as well as a variable for the distance between the source and detector to `AnalysisTools.h`.

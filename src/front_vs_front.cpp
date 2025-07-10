@@ -46,10 +46,6 @@ int main(int argc, char **argv) {
     TApplication app("app", &argc, argv);
 
 
-
-    // Front vs. back calibration parameter read-in
-    double front_vs_back_slope {}, front_vs_back_offset {};
-    read_face_parameters(Form("%sfront_vs_back.dat", CALIB_FILE_DIR), front_vs_back_slope, front_vs_back_offset);
     
     // Reduced file setup and tree read-in
     std::cout << std::endl;
@@ -79,7 +75,8 @@ int main(int argc, char **argv) {
 
         double front_sum {f1 + f2}, back_sum {b1 + b2};
         if(front_sum > 0 && front_sum < 1E10 && back_sum > 0 && back_sum < 1E10) {
-            if(front_equal_back(front_sum, back_sum, front_vs_back_slope, front_vs_back_offset)) {
+            // Assume that the front-back response is perfectly correlated.
+            if(front_equal_back(front_sum, back_sum, 1.0, 0.0)) {
                 g_FrontSumDif->SetPoint(g_FrontSumDif->GetN(), f2 - f1, front_sum);
                 points.push_back(new Point({f2 - f1, front_sum}));
                 ++number_clustered;

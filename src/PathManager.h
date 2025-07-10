@@ -7,11 +7,11 @@
 
 // Relevant Values
 #define EXPT_DATE "063123"                  // Which experimental directory holds the data
-#define CALIB_RUN 81                        // What run contains data for blank DADL (stretching and E calib)
+#define CALIB_RUN 97                        // What run contains data for blank DADL (stretching and E calib)
 #define FILE_NAME_FORMAT "R%s%03d.root"     // What naming convention ReducedFiles follow 
 // #define MASK_RUN
 
-// External directories
+// External directories - end with "/"
 #define ROOT_FILE_DIR "/data/sjygroup/sjy25/han61940/TargetTesting/"
 #define REDUCED_FILE_DIR ROOT_FILE_DIR "reduced/"
 #define CALIB_FILE_DIR ROOT_FILE_DIR "calib/"

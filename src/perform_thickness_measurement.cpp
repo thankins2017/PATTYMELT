@@ -29,6 +29,9 @@ int main(int argc, char **argv) {
     auto cosine_correction {false};     // Apply effective thickness correction?
     auto verbosity {0};                 // Adjust level of information printed as output.
 	                                        // 0 - no extra information; 1 - minimal information; 2 - more information; 3 - debug
+
+    auto use_backing {false};           // Set to "true" if the target being analyzed has a backing.
+    auto backing {new CycSrim(CycSrim::SrimMaterialCarbon, 0.020, CycSrim::kUnitsMgCm2)}; // Define the backing CycSrim
     //____________________________________________________________________________________________________
 
     // option manager
@@ -39,8 +42,7 @@ int main(int argc, char **argv) {
     auto *opt_events     = new BrAppIntOption('e', "events", "events to analyze", std::numeric_limits<int>::max());
     auto *opt_material   = new BrAppStringOption('m', "material", "target material", "CycSrim::SrimMaterialAu");
     // Thickness map coarseness option. Physical dimensions of DADL are 2cm x 2cm, intrinsic alpha
-    // position resolution for ~8 MeV deposited is ~0.5 mm. Doesn't make sense to plot more fine
-    // than this. A warning is thrown if the fineness is dropped below this threshold.
+    // position resolution for ~8 MeV deposited is ~0.8 mm.
     auto *opt_coarseness = new BrAppFloatOption('c', "coarseness", "map coarseness, in mm", 1.0); // In mm
 
     if(!BrAppOptionManager::Instance()->ProcessCommandLine()) { return 1; }
@@ -55,7 +57,7 @@ int main(int argc, char **argv) {
     std::cout << "perform_thickness_measurement : target initialized using " << opt_material->GetValue() << std::endl;
 
     // Coarseness warning
-    if(opt_coarseness->GetValue() < 0.5) {
+    if(opt_coarseness->GetValue() < 0.4) {
         std::cout << "perform_thickness_measurement : coarseness option (" << opt_coarseness->GetValue()
                   << " mm) less than optimal for given conditions." << std::endl;
     }
@@ -259,12 +261,23 @@ int main(int argc, char **argv) {
             std::vector<double> nominal_energy_losses {}, thicknesses {};
             std::vector<double> lower_energy_losses {}, upper_energy_losses {}, lower_errors {}, upper_errors {};
             for(auto j = 0; j < std::min(static_cast<int>(peak_centroids.size()), number_peaks_fit); ++j) {
-                // We must account for the dead layer impact in our observation of the energy so that we may compare it to the
-                // source energies prior to the dead layer. This is what matters for the thickness calculation. We are also 
-                // considering thickness error by adjusting the energies with the fit uncertainties.
-                nominal_energy_losses.push_back(source_energies.at(j) - (peak_centroids.at(j).first + dead_layer->GetEnergyLossFromResidual(2, 4, peak_centroids.at(j).first)));
-                upper_energy_losses.push_back(source_energies.at(j) - (lower_peak_centroids.at(j) + dead_layer->GetEnergyLossFromResidual(2, 4, lower_peak_centroids.at(j))));
-                lower_energy_losses.push_back(source_energies.at(j) - (upper_peak_centroids.at(j) + dead_layer->GetEnergyLossFromResidual(2, 4, upper_peak_centroids.at(j))));
+                // We must account for the dead layer and backing impacts on the observed energy. Begin by calculating the particle energies
+                // before the dead layer.
+                auto nominal_energy_after_target {peak_centroids.at(j).first + dead_layer->GetEnergyLossFromResidual(2, 4, peak_centroids.at(j).first)};
+                auto lower_energy_after_target   {lower_peak_centroids.at(j) + dead_layer->GetEnergyLossFromResidual(2, 4, lower_peak_centroids.at(j))};
+                auto upper_energy_after_target   {upper_peak_centroids.at(j) + dead_layer->GetEnergyLossFromResidual(2, 4, upper_peak_centroids.at(j))};
+                
+                // Then, if applicable, calculate the particle energies before the backing.
+                if(use_backing) {
+                    nominal_energy_after_target += backing->GetEnergyLossFromResidual(2, 4, nominal_energy_after_target);
+                    lower_energy_after_target += backing->GetEnergyLossFromResidual(2, 4, lower_energy_after_target);
+                    upper_energy_after_target += backing->GetEnergyLossFromResidual(2, 4, upper_energy_after_target);
+                } 
+
+                // The amount of energy lost passing through the material being measured is therefore:
+                nominal_energy_losses.push_back(source_energies.at(j) - nominal_energy_after_target);
+                upper_energy_losses.push_back(source_energies.at(j) - lower_energy_after_target);
+                lower_energy_losses.push_back(source_energies.at(j) - upper_energy_after_target);
                 
 				if(verbosity > 1) {
 					std::cout << "peak index: " << j << "; nominal loss (MeV): " << nominal_energy_losses.back() << "; upper loss (MeV): "
@@ -274,9 +287,7 @@ int main(int argc, char **argv) {
                 // If a peak is misidentified and the energy loss is calculated to be a negative number, ignore it and move on.
                 if(nominal_energy_losses.back() > 0) {
                     // Calculate thickness as range_originalE - range_reducedE; returns thickness in units specified by TARGET object.
-                    // Same as above, need to account for dead layer, but not necessary since handled earlier in script.
-                    thicknesses.push_back(TARGET->GetRange(2, 4, source_energies.at(j)) -
-                                        TARGET->GetRange(2, 4, source_energies.at(j) - nominal_energy_losses.back()));
+                    thicknesses.push_back(TARGET->GetRange(2, 4, source_energies.at(j)) - TARGET->GetRange(2, 4, source_energies.at(j) - nominal_energy_losses.back()));
 
                     // We'll account for errors by calculating the thickness using the upper and lower gauges on the energy spectrum fits.
                     upper_errors.push_back(TARGET->GetRange(2, 4, source_energies.at(j)) - TARGET->GetRange(2, 4, source_energies.at(j) - upper_energy_losses.back()));

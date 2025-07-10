@@ -74,8 +74,8 @@ int main(int argc, char **argv) {
     // Create the sigmoid functions that will be used to extract the stretching parameters, then fit
     auto *f_xpos = new TF1("f_xpos", "[0]*(1/(1 + TMath::Exp((x - [1])/[3])) + 1/(1 + TMath::Exp((x - [2])/(-1.0*[3]))) - 1)", -0.9, 0.9);
     f_xpos->SetParameters(0.95 * h_X->GetMaximum(), 0.4, -0.4, 0.025);
-    f_xpos->SetParLimits(1, 0.2, 0.8);
-    f_xpos->SetParLimits(2, -0.8, -0.2);
+    f_xpos->SetParLimits(1, 0.1, 0.8);
+    f_xpos->SetParLimits(2, -0.8, -0.1);
     f_xpos->SetParLimits(3, 0.0, 0.05);
     h_X->Fit(f_xpos, "NQ");
     auto *f_ypos = new TF1("f_ypos", "[0]*(1/(1 + TMath::Exp((x - [1])/[3])) + 1/(1 + TMath::Exp((x - [2])/(-1.0*[3]))) - 1)", -0.9, 0.9);
