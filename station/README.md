@@ -8,12 +8,13 @@
 - The full-size roughing pump and the pumping station should **never** be open to the chamber at the same time. 
 - Do not open the pumping station to the chamber if the foreline pressure exceeds 500 mT, preferably 200 mT.
 - Keep vent cycles as short as possible to reduce subsequent pumpdown time.
+- Do not turn off the turbo pump unless told to do so.
 
 ## Hardware
 - An image of the full target testing setup is given below. The station is comprised of a shoebox vacuum chamber attached to a full-size roughing pump and a HiCube 80 Eco turbomolecular pumping station. The data acquisition hardware, detector bias module, and preamplifier power supply are stored in the blue rack next to the setup.
 
 <center>
-<img src="source/full_station.jpg" width="400">
+<img src="source/full_station.jpg" width="375">
 </center>
 
 
@@ -44,7 +45,6 @@
 
 
 ### Chamber
-- TODO: detector mount description, dimensions, statement of position accuracy depending on source-detector distance.
 - The chamber has a single actuator arm that moves an aluminum blocker in front of the alpha source. An image of the arm is given below; note the two faint marks. The mark toward the outside of the arm is the position for *blocking the alpha source*, while the inner mark is the position for *unblocking* (as an example, the arm as shown below is in the unblocked position). 
 
 <center>
@@ -125,7 +125,7 @@
     3. Ensure that the valve to the roughing pump is fully closed, but don't overtighten; turning the handle clockwise closes it. The valve to the turbo pump should already be closed. If not attached, attach the KF-16 vacuum tube from the full-size roughing pump to the tan valve using an O-ring with a plastic centering ring. If the chamber isn't closed, close it. Use a couple of screws to help align the lid; tightening is not necessary.
     4. Plug in the full-size roughing pump to begin pulling vacuum on the foreline. Then, **slowly** open the tan valve to begin evacuating the chamber, using the convection gauge readout as a guide for how far to open the valve. As the chamber pumps down, further open the valve. If the chamber was open for longer than a couple of minutes, do not be surprised if the evacuation stalls several times at various intermediate pressures.
     5. Once the chamber is sufficiently evacuated for the turbo (ideally, less than 200 mT and no higher than 500 mT), close the valve to the roughing pump; clockwise closes, and do not overtighten. **Slowly** open the valve to the turbo, using the *DCU current* reported on the pumping station screen as a guide rather than the convection gauge readout. Once the current rises slightly, check the readout to verify that the vacuum is improving. Again, as the chamber pumps down, further open the valve while closely monitoring the current draw.
-    6. When the turbo is opened to the chamber, unplug the full-size roughing pump (i.e., do not stop in the middle of opening the turbo to the chamber to disconnect the power to the roughing pump). If the DADL signals were plugged into the oscilloscope, again verify that they are present, then return the outputs to the 3316 without altering the signal order; otherwise, turn the Topward on as described in step 1. Power on the fan underneath the NIM bin, the NIM bin itself, and the VME crate.
+    6. If the DADL signals were plugged into the oscilloscope, again verify that they are present, then return the outputs to the 3316 without altering the signal order; otherwise, turn the Topward on as described in step 1. Power on the fan underneath the NIM bin, the NIM bin itself, and the VME crate.
     7. In the NIM bin, check that the "NEG" lights on both channels of the Tennelec TC-953 are lit (if not, contact Alan McIntosh). Turn on both channels if they are not already on. Switch the LCD panel viewing option underneath each panel to "V" if they aren't already set to this. Both channels should read 0.0.
     8. If the chamber is light-tight (it should be when at vacuum and the viewport cover is taped to the chamber), begin turning both voltage knobs clockwise to apply bias. Do not increase the voltage faster than 5 V/s. At 30 V, switch the LCD panels to "uA" to check the leakage currents; if they're okay (as compared to the bias curve provided in [Detector](#detector)), switch back to "V" and continue biasing up.
     9. Stop increasing the bias on the lower channel (front guard ring) at -58.5 V. Continue increasing the upper channel (front face) until at -65 V. Check the leakage currents once more, and if they're still good, slowly move the actuator arm so that the aluminum plate is not blocking the source. Proceed with data acquisition.
@@ -135,7 +135,7 @@
     1. Slowly move the actuator arm so that the aluminum plate is blocking the source. Ramp down the bias on the detector by turning the voltage knobs on the Tennelec counter-clockwise until both channels are zeroed. The Topward current will fluctuate during the ramp down. Do not decrease the voltage faster than 5 V/s. Checking the leakage currents is not necessary.
     2. If done collecting data for a prolonged period, turn off the NIM bin, then the fan underneath the bin. Close out any open acquisition software on the computer, then turn off the VME crate. On the Topward, turn both current knobs counter-clockwise until zeroed, then turn the unit off. Otherwise, leave all units on and continue with step 3.
     3. Close the valve to the turbo pump; the valve to the roughing pump should already be closed and the roughing pump itself should be unplugged.
-    4. Disconnect the KF-16 vacuum tube from the roughing pump valve; this will vent the roughing pump foreline. Leave the tube disconnected.
+    4. Unplug the full size roughing pump from the wall, then disconnect the KF-16 vacuum tube from the roughing pump valve; this will vent the roughing pump foreline. Leave the tube disconnected.
     5. **Slowly** open the tan valve to begin venting the chamber. As the chamber gets closer to atmosphere, re-close the valve to slow venting; use the convection gauge readout as a guide. At atmosphere, the chamber can be opened.
 
 
@@ -156,7 +156,7 @@
     Tmr sis
     ```
     Note that Tmr will crash if the VME crate is not powered on.
-- New runs are started by clicking "Start ACQ". When this is clicked, a "Run Information" dialog box will appear (image below). The next run number, if data is being written to disk, is shown in the run number area. The type of data that is being collected is listed below that; this will always be "Source" for 060925. Finally, the option to write data to disk is given by the checkbox labeled "Disk Output".
+- New runs are started by clicking "Start ACQ". When this is clicked, a "Run Information" dialog box will appear (image below). The next run number, if data is being written to disk, is shown in the run number area. The type of data that is being collected is listed below that; this will always be "Source" for 063123. Finally, the option to write data to disk is given by the checkbox labeled "Disk Output".
     - If "Disk Output" is checked, additional areas to fill out will appear. Do not change the "Directory" or "Filename" fields, as these are automatically generated. The "Supervisor" field is for the user's initials. Finally, the "Comment" field provides an area to put notes for the given run. Include the target type, alpha source, and DADL bias voltages for completeness.
         - When typing in the box, keep the mouse hovering within the box; otherwise, text will not be written.
     - It is considered good practice to start a run without writing to disk to check the summaries in Anl, then begin writing after verifying everything is working. Anl will collect data from Tmr independent of Tmr's write state.
@@ -220,7 +220,7 @@
     Adding to both ensures that `CVSROOT` will be known regardless of which shell is running. Once this is done, either relaunch the terminal or run `source .bashrc/.cshrc` depending on if using bash or tcsh.
 - With `CVSROOT` defined, it is now possible to request a local copy of `063123/` from CVS. To do this, run the following in your home directory:
     ```
-    CVS checkout 063123/
+    cvs checkout 063123/
     ```
     This will, over the course of several seconds, copy the repository into a new `063123/` directory.
 - Once the copy is complete, `cd` into `063123/` and run `./autogen`. This cleans up the main and subdirectories of any existing build files, then begins the compilation process using `automake`. Once `autogen` is finished, run `make -j`. This executes a series of commands defined in the Makefile, mainly the compilation of listed programs. Note that this will likely fail with an error after running for a few seconds; run `make -j` again and it should complete. If it does, run `make -j install` to copy the built programs and libraries to the correct access locations.
@@ -244,22 +244,25 @@
     - `nice` is used (in this case) to run the command with a low CPU priority (e.g., collecting data, if applicable, takes precedence). `rsync` is the copying tool ran in `a`rchive and `v`erbose mode and will compress the file data during the transfer (`z`). `e` specifies the remote shell to use (in this case, `ssh`).
     - The acquisition host and computer address is given by `sjygroup@10.119.64.126`. The host will likely not change, but if the address changes, this will need to be updated accordingly. 
     - The path and raw file names on the acquisition computer is specified after `:`; the path should not change, but the file name will need to be changed each time. 
-        - The raw file naming scheme is given by `l063123AAABBB.root`, where `AAA` is the run number and `BBB` is the file number for the corresponding run. Numbers that need them have leading zeroes (e.g., 001, 002, ...). As defined, the wildcard (`*`) refers only to the file numbers instead of both the run and file numbers, which prevents any new user from accidentally copying all files ever collected using `063123/`.
-        - When taking data, remember the run number specified by `Tmr`, then change `AAA` above to that number before copying.
+        - The raw file naming scheme is given by `l063123AAABBB.root`, where `AAA` is the run number and `BBB` is the file number for the corresponding run. The file number is given by Tmr when data is originally collected; alternatively, it can be found in the acquisition database (either on the acquisition computer or once it's copied in the next step). Numbers that need them have leading zeroes (e.g., 001, 002, ...). As defined, the wildcard (`*`) in the command above refers only to the file numbers instead of both the run and file numbers, which prevents any new user from accidentally copying all files ever collected using `063123/`.
+        - When taking data, remember the run number specified by `Tmr` (or reference the acquisition database), then change `AAA` above to that number before copying.
     - Finally, the destination for the copied files is given by the second path. This should be changed to the full path for the raw file directory created in the previous step.
     - This command can be copied into a shell file and ran using `sh` so that it doesn't have to be copied every time it's ran (e.g., see `/data/sjygroup/sjy25/han61940/063123/raw/pull_raw_data.sh`)
+    - When prompted for a password, it is "sjysjy".
 
 ### CycApp Experiment Data Handling Pipeline
 - Before describing the specific steps, a basic description of how CycApp experiments manage files will be provided.
     - When collecting raw data, run information and output file names are recorded in an acquisition database (`ACQRunDb.txt`) unique to the repository. The database associated with the frontend on the acquisition computer automatically updates with each new run, but all other instances (e.g., the copy that exists in the CVS `063123/` repository) are not automatically updated.
     - As many derived files can be produced from the raw data, a file catalog is used to keep track of and relate them. Any modules that generate derived files first reference the FileCatalog to locate the source files, then automatically "link" new derived files by adding them to the existing catalog. In the case of raw events, however, the data collection is independent of the backend and adding them to the catalog is a manual process.
-- With a set of raw files copied from the acquisition computer, update the acquisition database by `cd`ing into `063123/rundb/` and running a command similar to:
+- With a set of raw files copied from the acquisition computer, update the acquisition database by `cd`ing into `063123/rundb/` (CVS directory) and running the following command:
     ```
-    rsync -avz -e ssh sjygroup@10.119.64.126:/home/sjygroup/sjygroup/063123_frontend/ACQRunDb.txt ./
+    rsync -avz -e ssh sjygroup@10.119.64.126:/home/sjygroup/sjygroup/063123_frontend
+    /ACQRunDb.txt ./
     ```
     then `make install`ing. The descriptions for each part of the above command are the same as those used when copying raw files.
     - The shell file `GrabACQRunDb.sh` that (should) exist in `rundb/` has a similar command and can be run instead with `sh GrabACQRunDb.sh`. If this is run instead, `make install`ing is still necessary.
     - As with the copying of raw files, the host will likely not change, but if the computer IP address changes, this will need to be updated accordingly. 
+    - As with the copying of raw files, when prompted for a password, it is "sjysjy".
 - When the acquisition database is updated and `rundb/` is `make install`ed, `cd` up and into `file_catalog` to (re)generate the FileCatalog. 
     - If this is the first time visiting this directory after checking out `063123/` from CVS, delete the existing FileCatalog (if one exists) with `rm FileCatalog.root`.
     - The FileCatalog is generated using the `GenerateRawFileCatalog.C` script. View this script in a text editor to check the experiment and dataDisk strings. The experiment string shouldn't need to be changed, but the string specifying the dataDisk will likely need to be. Change this to be the directory where your `063123/` data directory is located (e.g., for my (TH) version located at `/data/sjygroup/sjy25/han61940/063123/`, my (TH) dataDir would be `/data/sjygroup/sjy25/han61940/`). Save the changes and exit.
@@ -280,7 +283,8 @@
     FileCatalog: ~/063123/file_catalog/FileCatalog.root
 
     Run: 1
-    OutputFile:/data/sjygroup/sjy25/han61940/063123/ReducedFiles/R063123001.root
+    OutputFile:/data/sjygroup/sjy25/han61940/063123/ReducedFiles
+    /R063123001.root
     ```
     where "OutputFile" is the full path and name desired for the output file.
     - For each new run, only the run number in the "Run:" line and the file name need to be changed. The ReducedFile name convention is `R063123AAA.root`, where `AAA` is the run number (with leading zeroes, if needed).
