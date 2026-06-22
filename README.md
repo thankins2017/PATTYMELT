@@ -1,5 +1,5 @@
 # Package for Analysis of Target Thicknesses and Yields by Method of Energy Loss and Transfer (PATTYMELT)
-### v. 1.1.0; Author: T. Hankins, Date Last Modified: 250612
+### v. 1.1.1; Author: T. Hankins, Date Last Modified: 260622
 
 ## Quick Access
 
@@ -19,11 +19,12 @@
 
 ## Purpose, Limitations, and Requirements
 
+- This technique has an associated publication here: [NIM B 566, 165788 (2025)](https://doi.org/10.1016/j.nimb.2025.165788). 
 - This package was written to streamline working with the TAMU Cyclotron Institute Target Testing Station, which uses a position-sensitive dual-axis duo-lateral (DADL) silicon detector.
 - To use this package, data in the form of **Reduced Events** is needed. This can be obtained from raw data using the tools associated with the `063123/` directory that can be checked out from `CVS`. As the production of Reduced Events is beyond the scope of this package, the details of this procedure are not offered here.
 - If the experiment directory is changed from `063123/`, read below to learn how to update the package.
 - The choice of alpha source is important - using <sup>229</sup>Th is recommended (especially for targets that are damaged). The package currently supports using <sup>228,229</sup>Th.
-- The alpha source energy loss method itself cannot be used for targets that have significant thickness variations, such as salt-like targets (e.g., Gd<sub>2</sub>O<sub>3</sub>). At the moment, the package also cannot handle targets with backings.
+- The alpha source energy loss method itself cannot be used for targets that have significant thickness variations, such as salt-like targets (e.g., Gd<sub>2</sub>O<sub>3</sub>). This package can handle targets with backings, but it's a rudimentary implementation that requires specifiying the thickness and material of the backing in `perform_thickness_measurement`.
 
 
 
@@ -72,7 +73,7 @@
     make
     make install
     ```
-    Wait for each operation to complete before moving on in case there are errors, compile or otherwise.
+    Wait for each operation to complete before moving on in case there are errors, compiler or otherwise. If `make`ing `063123/` fails on the first try, try `make`ing a second time.
 1. Return to the package directory and begin by defining your desired root file directory (`ROOT_FILE_DIR`) in the package's `src/PathManager.h` (e.g., `/data/sjygroup/sjy25/han61940/TargetTesting/`). Note that this location needs to exist. Absolute paths are recommended.
 2. If the `bin/` directory does not already exist, return to the root of the package, then:
     ```
@@ -194,6 +195,7 @@
 
 ## Changelog
 
+- 1.1.1 (260622) : minor updates, including adding the target testing publication if needed.
 - 1.1.0 (250612) : added functionality for target produced with backing in `perform_thickness_measurement`.
 - 1.0.0 (241210) : corrected small error with integrator method; paper is currently under internal review, so now is an appropriate time to promote to release version.
 - 0.5.3 (241108) : added `std::fstream()` calibration file checks to `AnalysisTools.h` that ensure the files are present (i.e., to not let people who don't read the instructions do as they please); added simple fix to `perform_thickness_measurement` that corrects multi-peak fit where a single peak was missed.

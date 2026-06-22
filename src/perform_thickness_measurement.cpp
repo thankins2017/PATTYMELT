@@ -21,7 +21,7 @@
 int main(int argc, char **argv) {
     //____________________________________________________________________________________________________
     // Configuration settings that generally do not change run to run.
-    auto number_peaks_fit {5};          // How many peaks are to be used during the thickness calculation
+    auto number_peaks_fit {3};          // How many peaks are to be used during the thickness calculation
     auto peak_threshold {0.2};          // The amplitude, as a function of the most populated bin in the spectrum, at which
                                             // a set of bins could be identified as a peak. 0.25 is often used for 228Th.
     auto reevaluate_target {true};      // After performing first-pass calculations, loop through the target one or more
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 	                                        // 0 - no extra information; 1 - minimal information; 2 - more information; 3 - debug
 
     auto use_backing {false};           // Set to "true" if the target being analyzed has a backing.
-    auto backing {new CycSrim(CycSrim::SrimMaterialCarbon, 0.020, CycSrim::kUnitsMgCm2)}; // Define the backing CycSrim
+    auto backing {new CycSrim(CycSrim::SrimMaterialAluminum, 5.33, CycSrim::kUnitsMgCm2)}; // Define the backing CycSrim
     //____________________________________________________________________________________________________
 
     // option manager
