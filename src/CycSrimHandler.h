@@ -26,6 +26,8 @@ CycSrim::EMaterials evaluate_cycsrim_material(const std::string &material) {
         return CycSrim::SrimMaterialBoron;
     } else if(material == "CycSrim::SrimMaterialEu2O3") {
         return CycSrim::SrimMaterialEu2O3;
+    } else if(material == "CycSrim::SrimMaterialLead") {
+        return CycSrim::SrimMaterialLead;
     } else {
         std::invalid_argument("CycSrimHandler::evaluate_cycsrim_material : invalid material " + material + ". Returning CycSrim::SrimMaterialAu");
         return CycSrim::SrimMaterialAu;
