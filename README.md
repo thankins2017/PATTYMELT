@@ -1,5 +1,5 @@
 # Package for Analysis of Target Thicknesses and Yields by Method of Energy Loss and Transfer (PATTYMELT)
-### v. 1.1.1; Author: T. Hankins, Date Last Modified: 260622
+### v. 1.1.2; Author: T. Hankins, Date Last Modified: 260702
 
 ## Quick Access
 
@@ -7,6 +7,7 @@
 - [Package Contents](#package-contents)
 - [Setup](#setup)
 - [Setup (Alternate)](#setup-alternate)
+- [ReducedFile Generation](#reduced-file)
 - [Usage](#usage)
     - [`perform_histogram_measurement` File Output](#perform_thickness_measurement-file-output)
 - [FAQ](#faq)
@@ -56,25 +57,45 @@
     ```
     ls ~/lib/lib063123.so
     ```
-    If you get a "No such file or directory" result, address this problem before continuing. First, ensure that `CVSROOT` is properly initialized by including
+    If you get a "No such file or directory" result, this problem must be addressed before continuing. Begin by ensuring that `CVSROOT` is properly initialized: first, run
+    ```
+    echo $0
+    ```
+    in the terminal to determine what shell is running. If the returned value is `bash` or something similar, add the line
+    ```
+    export CVSROOT='/home/jbngroup/jbngroup/CVSROOT'
+    ```
+    to `~/.bashrc`; if the returned value is `csh`, `tcsh`, or something similar, add the line
+
     ```
     setenv CVSROOT /home/jbngroup/jbngroup/CVSROOT
     ```
-    in `~/.cshrc`. Then,
+    to `~/.cshrc`. Then, `source` whichever file was updated by running either
     ```
+    source ~/.bashrc
     source ~/.cshrc
     ```
-    Then,
+    After,
     ```
     cd ~/
     cvs checkout 063123
     cd 063123
+    ```
+    If `cvs checkout` fails, it is a permissions error beyond the scope of PATTYMELT. A workaround for this is to copy the existing version that I (TH) have in my home directory, then purge any pre-existing metadata:
+    ```
+    cd ~/
+    cp -r /home/sjygroup/han61940/063123 .
+    cd 063123
+    make maintainer-clean
+    ```
+    With the directory copied, in the root of the directory,
+    ```
     ./autogen
     make
     make install
     ```
     Wait for each operation to complete before moving on in case there are errors, compiler or otherwise. If `make`ing `063123/` fails on the first try, try `make`ing a second time.
-1. Return to the package directory and begin by defining your desired root file directory (`ROOT_FILE_DIR`) in the package's `src/PathManager.h` (e.g., `/data/sjygroup/sjy25/han61940/TargetTesting/`). Note that this location needs to exist. Absolute paths are recommended.
+1. Return to the package directory and begin by defining your desired root file directory (`ROOT_FILE_DIR`) in the package's `src/PathManager.h` (e.g., `/data/sjygroup/sjy25/han61940/TargetTesting/`). Absolute paths are recommended. Extensions for the ReducedFile, calibration, and output file directories can also be changed here. All directories will need to exist, but their creation will be handled automatically with step 4. Additionally, the calibration run number (`CALIB_RUN`) can also be set during this step if it's already known.
 2. If the `bin/` directory does not already exist, return to the root of the package, then:
     ```
     mkdir bin
@@ -85,7 +106,7 @@
     cd build
     cmake ..
     ```
-    This creates a `build/` directory alongside the `bin/` and `src/` directories then initializes CMake. If the `build/` directory does exist, delete it and recreate it; the presence of pre-existing build files *will* cause compilation errors. It is not necessary to delete and recreate the `bin/` directory if it does not already exist.
+    This creates a `build/` directory alongside the `bin/` and `src/` directories then initializes CMake. If either the `build/` or `bin/` directories exist, delete and recreate them; the presence of pre-existing build files *will* cause compilation errors.
     - Depending on the computer, the CMake configuration and build file generation can take as long as 90 seconds, so please be patient. Generally, it takes somewhere between 15-30 seconds.
 3. If the build files generate succesfully, run `make` from inside the `build/` directory. If several cores are available, run the variant `make -jN`, where *N* is the number of cores to allocate to the process (e.g., 4). If this is successful, run `make -jN install`.
 4. This package comes with a built-in executable which automatically creates relevant directories for reading and writing files. It is recommended, though not required, that this approach be followed, otherwise additional steps will have to be taken to modify the source codes. To continue, move to the `bin/` directory and run `initialize_directories`. From inside `build/`:
@@ -94,15 +115,6 @@
     ./initialize_directories
     ```
     The program will create the directories in the `ROOT_FILE_DIR` that was defined earlier and print a message to the terminal when complete. Check that the directories were created.
-
-### Managing Data and Defining Additional Directories
-
-- The current naming convention for Reduced Files is "R + experiment date + file number". However, the naming "variable" `FILE_NAME_FORMAT` is preprocessor defined in `PathManager.h`. The format of this can be changed, if desired. At the time of writing, it is currently "R%s%03d.root", which takes a string (%s) representing the experiment date (from `PathManager.h`) and a signed integer (%d) representing the run number (offered as an executable runtime option).
-
-1. If following the file management practice established above, copy the Reduced Files to be analyzed into the `reduced/` folder under the `ROOT_FILE_DIR`. This location should already exist following `initialize_directories`. Otherwise, modify the definition of `REDUCED_FILE_DIR` in `PathManager.h`, then `make install`. The other directories can also be changed, if desired.
-2. If the calibration run number is already known (alpha source on a DADL with no mask or target), change the run number in `PathManager.h`, then `make install`.
-3. Proceed to [Usage](#usage).
-
 
 
 
@@ -132,6 +144,40 @@
     ```
     If nothing is found, the process was successful.
 2. Return to step 1 of normal [Setup](#initializing-the-package-and-directories).
+
+
+
+
+
+## ReducedFile Generation
+
+- The production of ReducedFiles from raw data is a Cyclotron Applications-based process and the general approach is outlined here.
+1. First, copy any raw data files using the corresponding shell script. For security reasons, this script is not included in the default PATTYMELT package, but can instead be copied from `/home/sjygroup/han61940/063123/PullRawData.sh`. It is best kept in the `raw/` file directory that was defined in `PathManager.h`. Open the script and change the second path to match the previously defined `raw/`, then change the first path to define what files to copy when the script is run. Again, absolute paths are preferred. Run the script using
+    ```
+    sh PullRawData.sh  ->  (pwd: sjysjy)
+    ``` 
+    and the files should copy to `raw/`. Note that each time new files are to be pulled, the first path will need to be changed.
+    - If a "no host" error is returned, it is likely that the IP address needs to be updated. See Kris about getting the latest IP, or go retrieve it from the lab computer yourself.
+    - The naming convention for raw files is "l + experiment_date + run_number + file_number". All files associated with a given run need to be copied, so there will be at least one wildcard present in the path. Note that a single wildcard can serve for both run and file numbers (e.g., "l063123100\*" returns all files associated with run 100, while "l06312310\*" will return all files associated with runs 100-109). 
+    - Do not wildcard copy all existing run files. This is a waste of disk space.
+2. Grab the latest ACQRunDb.txt by running the `GrabACQRunDb.sh` script in `063123/rundb/`:
+    ```
+    sh GrabACQRunDb.sh  ->  (pwd: sjysjy)
+    ```
+    then `make install` within that directory.
+    - See the note on step 1 if a "no host" error is returned
+3. Go up one directory and into `file_catalog/`. If the `FileCatalog.root` exists *and only if* this is the first time in this directory, delete it. Then, open `GenerateRawFileCatalog.C` to edit the paths present. The only things should need editing are the `dataDisk` variable, which should match the definition of `ROOT_FILE_DIR` in `PathManager.h`, and the ReducedFile directory prefix (around line 50; this should match the prefix used with `REDUCED_FILE_DIR` which is likely just "reduced"). Save the file, then run:
+    ```
+    root -q GenerateRawFileCatalog.C"(first, last)"
+    ```
+    where "first" and "last" are the inclusive run numbers to be added to the catalog; if only adding one run, these are the same value. Note that the double quotes in the command are necessary. If the script runs without errors, `make install`, then continue. 
+4. Go up one directory and into `dMakeReduceFile/`. There should be at least one `ReduceFile.config` file that outlines the convention. Open this file and update both the `Run` and `OutputFile` lines to reflect what run is being reduced, where the output file is going, and what name the file will have. (Additionally, if following the instructions in [Setup (Alternate)](#setup-alternate), the Library, Event, and MultiEvent lines will also have to be updated.) Save, then run
+    ```
+    ReduceFile ReduceFile.config
+    ```
+    and the process will begin. Note that this is a relatively slow procedure which could take upwards of five minutes depending on how many events were present in the run.
+    - The current naming convention for Reduced Files is "R + experiment date + run number". However, the naming "variable" `FILE_NAME_FORMAT` is preprocessor defined in `PathManager.h`. The format of this can be changed, if desired. At the time of writing, it is currently "R%s%03d.root", which takes a string (%s) representing the experiment date (from `PathManager.h`) and a signed integer (%d) representing the run number (offered as an executable runtime option).
+5. If not already set, re-open the PATTYMELT `PathManager.h`, define what the `CALIB_RUN` is, `make install`, then proceed.
 
 
 
@@ -195,6 +241,7 @@
 
 ## Changelog
 
+- 1.1.2 (260622) : updates to README, primarily focusing on ReducedFile generation.
 - 1.1.1 (260622) : minor updates, including adding the target testing publication if needed.
 - 1.1.0 (250612) : added functionality for target produced with backing in `perform_thickness_measurement`.
 - 1.0.0 (241210) : corrected small error with integrator method; paper is currently under internal review, so now is an appropriate time to promote to release version.

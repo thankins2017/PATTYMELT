@@ -38,14 +38,13 @@ bool create_directory(const std::string& path) {
 
 //____________________________________________________________________________________________________
 int main(int argc, char **argv) {
+    std::cout << "initializing_directories : beginning" << std::endl;
 
-    // Using the ROOT_FILE_DIR provided in PathManager.h, create the directories that will hold the
-    // various files.
-
-    create_directory(static_cast<std::string>(ROOT_FILE_DIR) + "reduced/");
-    create_directory(static_cast<std::string>(ROOT_FILE_DIR) + "trees/");
-    create_directory(static_cast<std::string>(ROOT_FILE_DIR) + "output/");
-    create_directory(static_cast<std::string>(ROOT_FILE_DIR) + "calib/");
+    create_directory(static_cast<std::string>(ROOT_FILE_DIR));
+    create_directory(static_cast<std::string>(RAW_FILE_DIR));
+    create_directory(static_cast<std::string>(REDUCED_FILE_DIR));
+    create_directory(static_cast<std::string>(CALIB_FILE_DIR));
+    create_directory(static_cast<std::string>(OUTPUT_FILE_DIR));
 
     std::cout << "initializing_directories : finished" << std::endl;
 

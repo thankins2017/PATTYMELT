@@ -13,6 +13,7 @@
 
 // External directories - end with "/"
 #define ROOT_FILE_DIR "/data/sjygroup/sjy25/han61940/TargetTesting/"
+#define RAW_FILE_DIR ROOT_FILE_DIR "raw/"
 #define REDUCED_FILE_DIR ROOT_FILE_DIR "reduced/"
 #define CALIB_FILE_DIR ROOT_FILE_DIR "calib/"
 #define OUTPUT_FILE_DIR ROOT_FILE_DIR "output/"
