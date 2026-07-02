@@ -152,11 +152,11 @@
 ## ReducedFile Generation
 
 - The production of ReducedFiles from raw data is a Cyclotron Applications-based process and the general approach is outlined here.
-1. First, copy any raw data files using the corresponding shell script. For security reasons, this script is not included in the default PATTYMELT package, but can instead be copied from `/home/sjygroup/han61940/063123/PullRawData.sh`. It is best kept in the `raw/` file directory that was defined in `PathManager.h`. Open the script and change the second path to match the previously defined `raw/`, then change the first path to define what files to copy when the script is run. Again, absolute paths are preferred. Run the script using
+1. First, copy any raw data files using the corresponding shell script. For security reasons, this script is not included in the default PATTYMELT package, but can instead be copied from `/home/sjygroup/han61940/063123/PullRawData.sh`. It is best kept in `RAW_FILE_DIR` defined in `PathManager.h`. Open the script and change the second path to match the previously defined `RAW_FILE_DIR`, then change the first path to define what files to copy when the script is run. Again, absolute paths are preferred. Run the script using
     ```
     sh PullRawData.sh  ->  (pwd: sjysjy)
     ``` 
-    and the files should copy to `raw/`. Note that each time new files are to be pulled, the first path will need to be changed.
+    and the files should copy to `RAW_FILE_DIR`. Note that each time new files are to be pulled, the first path will need to be changed.
     - If a "no host" error is returned, it is likely that the IP address needs to be updated. See Kris about getting the latest IP, or go retrieve it from the lab computer yourself.
     - The naming convention for raw files is "l + experiment_date + run_number + file_number". All files associated with a given run need to be copied, so there will be at least one wildcard present in the path. Note that a single wildcard can serve for both run and file numbers (e.g., "l063123100\*" returns all files associated with run 100, while "l06312310\*" will return all files associated with runs 100-109). 
     - Do not wildcard copy all existing run files. This is a waste of disk space.
@@ -165,19 +165,20 @@
     sh GrabACQRunDb.sh  ->  (pwd: sjysjy)
     ```
     then `make install` within that directory.
-    - See the note on step 1 if a "no host" error is returned
+    - See the note on step 1 if a "no host" error is returned.
 3. Go up one directory and into `file_catalog/`. If the `FileCatalog.root` exists *and only if* this is the first time in this directory, delete it. Then, open `GenerateRawFileCatalog.C` to edit the paths present. The only things should need editing are the `dataDisk` variable, which should match the definition of `ROOT_FILE_DIR` in `PathManager.h`, and the ReducedFile directory prefix (around line 50; this should match the prefix used with `REDUCED_FILE_DIR` which is likely just "reduced"). Save the file, then run:
     ```
     root -q GenerateRawFileCatalog.C"(first, last)"
     ```
     where "first" and "last" are the inclusive run numbers to be added to the catalog; if only adding one run, these are the same value. Note that the double quotes in the command are necessary. If the script runs without errors, `make install`, then continue. 
-4. Go up one directory and into `dMakeReduceFile/`. There should be at least one `ReduceFile.config` file that outlines the convention. Open this file and update both the `Run` and `OutputFile` lines to reflect what run is being reduced, where the output file is going, and what name the file will have. (Additionally, if following the instructions in [Setup (Alternate)](#setup-alternate), the Library, Event, and MultiEvent lines will also have to be updated.) Save, then run
+    - Adding additional runs to the FileCatalog is as simple as re-running this command with the new run numbers. The output information will be appended to the existing FileCatalog.
+4. Go up one directory and into `dMakeReduceFile/`. There should be at least one `ReduceFile.config` file that outlines the convention. Open this file and update both the `Run` and `OutputFile` lines to reflect what run is being reduced, where the output file is going, and what name the output file will have. (Additionally, if following the instructions in [Setup (Alternate)](#setup-alternate), the Library, Event, and MultiEvent lines will also have to be updated.) Save, then run
     ```
     ReduceFile ReduceFile.config
     ```
     and the process will begin. Note that this is a relatively slow procedure which could take upwards of five minutes depending on how many events were present in the run.
     - The current naming convention for Reduced Files is "R + experiment date + run number". However, the naming "variable" `FILE_NAME_FORMAT` is preprocessor defined in `PathManager.h`. The format of this can be changed, if desired. At the time of writing, it is currently "R%s%03d.root", which takes a string (%s) representing the experiment date (from `PathManager.h`) and a signed integer (%d) representing the run number (offered as an executable runtime option).
-5. If not already set, re-open the PATTYMELT `PathManager.h`, define what the `CALIB_RUN` is, `make install`, then proceed.
+5. If not already set, re-open the PATTYMELT `PathManager.h`, define what the `CALIB_RUN` is, `make install`, and proceed.
 
 
 
