@@ -7,20 +7,20 @@ configure_file(PathManager.h PathManager.h)
 # add_include("PathManager.h")
 
 # Generate the root dictionary
-root_generate_dictionary("G__${LIB_NAME}" ${LIB_HEADERS} LINKDEF LinkDef.h)
-
-# create the shared library
-add_library(${LIB_NAME} SHARED ${LIB_SOURCES} "G__${LIB_NAME}.cxx")
-target_include_directories(${LIB_NAME} PRIVATE ${CYCAPP_INCLUDE_DIRECTORY} ${ROOT_INCLUDE_DIRS} ${HEADER_DIR})
-target_link_libraries(${LIB_NAME} PRIVATE ROOT::Physics ROOT::RIO ROOT::GX11 ROOT::RGL)
-target_compile_options(${LIB_NAME} PRIVATE -Wall)
-
-
-# install path for the shared library
-install(TARGETS ${LIB_NAME} DESTINATION $ENV{HOME}/lib)
+# root_generate_dictionary("G__${LIB_NAME}" ${LIB_HEADERS} LINKDEF LinkDef.h)
+# 
+# # create the shared library
+# add_library(${LIB_NAME} SHARED ${LIB_SOURCES} "G__${LIB_NAME}.cxx")
+# target_include_directories(${LIB_NAME} PRIVATE ${CYCAPP_INCLUDE_DIRECTORY} ${ROOT_INCLUDE_DIRS} ${HEADER_DIR})
+# target_link_libraries(${LIB_NAME} PRIVATE ROOT::Physics ROOT::RIO ROOT::GX11 ROOT::RGL)
+# target_compile_options(${LIB_NAME} PRIVATE -Wall)
+# 
+# 
+# # install path for the shared library
+# install(TARGETS ${LIB_NAME} DESTINATION $ENV{HOME}/lib)
 
 # install path for the generated library
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${LIB_NAME}_rdict.pcm DESTINATION $ENV{HOME}/lib)
+# install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${LIB_NAME}_rdict.pcm DESTINATION $ENV{HOME}/lib)
 # only use the following if you want to always have this library loaded
 # install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${LIB_NAME}.rootmap DESTINATION $ENV{HOME}/lib) 
 

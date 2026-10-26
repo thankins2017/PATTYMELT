@@ -503,7 +503,7 @@ int main(int argc, char **argv) {
     h_ThicknessMap->SetName("h_ThicknessMap");
     h_ThicknessMap->GetZaxis()->SetRangeUser(minimum_cont, maximum_cont);
 
-    auto *root_dir {gDirectory};
+    TDirectory *root_dir {gDirectory};
     auto *diagnostic_dir {gDirectory->mkdir("Diagnostics")};
     auto *source_spectra_dir {gDirectory->mkdir("Source Spectra")};
 
